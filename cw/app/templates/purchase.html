@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Оплата покупок{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .payment-form {
+        max-width: 500px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .payment-form input {
+        margin-bottom: 15px;
+    }
+    .order-info {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Оплата покупок</h2>
+
+<!-- Форма для оплаты -->
+<div class="payment-form">
+    <form id="paymentForm">
+        <div class="form-group">
+            <label for="card_number">Номер карты</label>
+            <input type="text" class="form-control" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" required pattern="[0-9]{16}" maxlength="16">
+        </div>
+        <div class="form-group">
+            <label for="card_holder_name">Имя владельца карты</label>
+            <input type="text" class="form-control" id="card_holder_name" name="card_holder_name" placeholder="John Doe" required>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="card_expiry_date">Срок действия</label>
+                <input type="text" class="form-control" id="card_expiry_date" name="card_expiry_date" placeholder="MM/YY" required pattern="(0[1-9]|1[0-2])\/[0-9]{2}">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="card_cvv">CVV</label>
+                <input type="text" class="form-control" id="card_cvv" name="card_cvv" placeholder="123" required pattern="[0-9]{3}" maxlength="3">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Оплатить</button>
+    </form>
+    <div id="paymentMessageContainer"></div>
+</div>
+
+<!-- Блок для отображения информации о заказе -->
+<div id="orderInfo" class="order-info" style="display: none;">
+    <h3 class="text-center">Информация о заказе</h3>
+    <p><strong>Заказ №:</strong> <span id="orderId"></span></p>
+    <p><strong>Статус:</strong> <span id="orderStatus"></span></p>
+    <p><strong>Имя владельца карты:</strong> <span id="cardHolderName"></span></p>
+    <p><strong>Срок действия карты:</strong> <span id="cardExpiryDate"></span></p>
+    <p><strong>Номер карты:</strong> **** **** **** <span id="cardLastFour"></span></p>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#paymentForm').on('submit', function(event) {
+        event.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/process_payment',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.status === "success") {
+                    // Скрываем форму оплаты
+                    $('#paymentForm').hide();
+                    $('#paymentMessageContainer').html('<div class="alert alert-success mt-3" role="alert">' + response.message + '</div>');
+
+                    // Отображаем информацию о заказе
+                    $('#orderInfo').show();
+                    $('#orderId').text(response.order_id);
+                    $('#orderStatus').text(response.order_status);
+                    $('#cardHolderName').text(response.card_holder_name);
+                    $('#cardExpiryDate').text(response.card_expiry_date);
+                    $('#cardLastFour').text(response.card_number.slice(-4));
+                } else {
+                    $('#paymentMessageContainer').html('<div class="alert alert-danger mt-3" role="alert">' + response.message + '</div>');
+                }
+            },
+            error: function() {
+                $('#paymentMessageContainer').html('<div class="alert alert-danger mt-3" role="alert">Ошибка при обработке платежа.</div>');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

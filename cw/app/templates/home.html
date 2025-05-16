@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Список товаров{% endblock %}
+
+{% block content %}
+<h2>Список доступных продуктов</h2>
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-4">
+        <div class="card mb-4" onclick="window.location='/products/{{ product[0] }}&{{ product[6] }}'">
+            <div class="card-body">
+                <h5 class="card-title">{{ product[1] }} {{ product[2] }}</h5>
+                <p class="card-text">Цена: {{ product[4] }} руб.</p>
+                <p class="card-text">Адрес: {{ product[7] }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

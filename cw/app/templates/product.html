@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Страница продукта{% endblock %}
+
+{% block content %}
+    <h1 id="product-name">{{ product[1] }} {{ product[2] }}</h1>
+    {% if product[8] %}
+    <p><strong>Описание продукта:</strong> <span id="product-description">{{ product[8] }}</span></p>
+    {% endif %}
+    {% if product[9] %}
+    <p><strong>Описание бренда:</strong> <span id="product-brand-description">{{ product[9] }}</span></p>
+    {% endif %}
+    <p><strong>Категория:</strong> <span id="product-category">{{ product[3] }}</span></p>
+    {% if product[10] %}
+    <p><strong>Описание категории:</strong> <span id="product-category-description">{{ product[10] }}</span></p>
+    {% endif %}
+    <p><strong>Цена:</strong> <span id="product-price">{{ product[4] }}</span> руб.</p>
+    <p><strong>Остаток на складе:</strong> <span id="product-stock">{{ product[5] }}</span> шт.</p>
+    <form class="mb-4" id="add_appliance_to_basket_Form">
+        <div class="form-group">
+            <label>Количество</label>
+            <input type="number" name="stock" class="form-control" placeholder="Введите количество" min="1" required>
+            <input type="hidden" name="appliance_id" id="appliance_id" value="{{ product[0] }}">
+            <input type="hidden" name="shop_id" id="shop_id" value="{{ product[6] }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить товар в корзину</button>
+    </form>
+    <div id="add_appliance_to_basket_messageContainer"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#add_appliance_to_basket_Form').on('submit', function(event) {
+        event.preventDefault();
+        var stockAvailable = parseInt($('#product-stock').text());
+        var quantity = parseInt($('input[name="stock"]').val());
+        if (quantity > stockAvailable) {
+            $('#add_appliance_to_basket_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">Количество не может превышать остаток на складе!</div>');
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '/products/add_to_basket',
+                data: $(this).serialize(),
+                success: function(response) {
+                    location.reload();
+                },
+                error: function() {
+                    $('#add_appliance_to_basket_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">Ошибка при добавлении товара в корзину.</div>');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

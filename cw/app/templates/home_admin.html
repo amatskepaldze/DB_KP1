@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель администратора{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .scrollable-container {
+        max-height: 300px;
+        border: 1px solid #54cad99d;
+        overflow-y: auto;
+        border-radius: 15px;
+        background:  linear-gradient(135deg, #4eebc94f 0%, #22d0d6dd 80%);
+    }
+
+    .scrollable-container::-webkit-scrollbar-track {
+    background: 1px solid #54cad99d;;
+    border-radius: 10px;
+    }
+
+    .scrollable-container::-webkit-scrollbar-thumb {
+    background: #64a19d;
+    border-radius: 10px;
+    }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Управление базой данных</h1>
+
+    <h2 class="mt-4">Добавить новый товар</h2>
+    <form class="mb-4" id="add_appliance_Form">
+        <div class="form-group">
+            <label>Наименование товара</label>
+            <input type="text" name="name" id="name" class="form-control" placeholder="Введите наименование товара" required>
+        </div>
+        <div class="form-group">
+            <label>Бренды</label>
+            <select class="form-control" id="brand" name="brand" required>
+                <option value="" disabled selected>Выберите бренд</option>
+                {% for brand in brands %}
+                    <option>{{ brand }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Категории</label>
+            <select class="form-control" id="category" name="category" required>
+                <option value="" disabled selected>Выберите категорию</option>
+                {% for category in categories %}
+                    <option>{{ category }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Цена</label>
+            <input type="number" name="price" class="form-control" placeholder="Введите цену" min="1" required>
+        </div>
+        <div class="form-group">
+            <label>Количество</label>
+            <input type="number" name="stock" class="form-control" placeholder="Введите количество" min="1" required>
+        </div>
+        <div class="form-group">
+            <label>Описание товара</label>
+            <input type="text" name="description" id="description" class="form-control" placeholder="Введите описание товара">
+        </div>
+        <div class="form-group">
+            <label>Магазины</label>
+            <select class="form-control" id="shop" name="shop" required>
+                <option value="" disabled selected>Выберите магазин</option>
+                {% for shop in shops %}
+                    <option>{{ shop[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить товар</button>
+    </form>
+    <div id="add_appliance_messageContainer"></div>
+
+    <h2 class="mt-4">Удалить товар</h2>
+    <div class="scrollable-container border">
+        <table class="table table-bordered mb-0">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Бренд</th>
+                    <th>Магазин</th>
+                    <th>Удалить</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr id="row-{{ product[0] }}a{{ product[6] }}">
+                    <td>{{ product[1] }}</td>
+                    <td>{{ product[2] }}</td>
+                    <td>{{ product[7] }}</td>
+                    <td>
+                        <form class="rmv_appliance_Form">
+                            <input type="hidden" name="appliance_id" value="{{ product[0] }}">
+                            <input type="hidden" name="shop_id" value="{{ product[6] }}">
+                            <button type="submit" class="btn btn-danger">Удалить товар</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="rmv_appliance_messageContainer"></div>
+
+    <h2 class="mt-4">Добавить новый магазин</h2>
+    <form class="mb-4" id="add_shop_Form">
+        <div class="form-group">
+            <label>Адрес магазина</label>
+            <input type="text" name="address" id="address" class="form-control" placeholder="Введите адрес магазина">
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить магазин</button>
+    </form>
+    <div id="add_shop_messageContainer"></div>
+
+    <h2 class="mt-4">Удалить магазин</h2>
+    <div class="scrollable-container border">
+        <table class="table table-bordered mb-0">
+            <thead>
+                <tr>
+                    <th>Адрес</th>
+                    <th>Удалить</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for shop in shops %}
+                <tr id="row-{{ shop[0] }}">
+                    <td>{{ shop[1] }}</td>
+                    <td>
+                        <form class="rmv_shop_Form">
+                            <input type="hidden" name="shop_id" value="{{ shop[0] }}">
+                            <button type="submit" class="btn btn-danger">Удалить магазин</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="rmv_shop_messageContainer"></div>
+
+    <h2 class="mt-4">Добавить новый бренд</h2>
+    <form class="mb-4" id="add_brand_Form">
+        <div class="form-group">
+            <label>Название бренда</label>
+            <input type="text" name="name" id="name" class="form-control" placeholder="Введите название бренда">
+        </div>
+        <div class="form-group">
+            <label>Описание бренда</label>
+            <input type="text" name="description" id="description" class="form-control" placeholder="Введите описание бренда">
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить бренд</button>
+    </form>
+    <div id="add_brand_messageContainer"></div>
+
+    <h2 class="mt-4">Добавить новую категорию</h2>
+    <form class="mb-4" id="add_category_Form">
+        <div class="form-group">
+            <label>Название категории</label>
+            <input type="text" name="name" id="name" class="form-control" placeholder="Введите название категории">
+        </div>
+        <div class="form-group">
+            <label>Описание категории</label>
+            <input type="text" name="description" id="description" class="form-control" placeholder="Введите описание категории">
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить категорию</button>
+    </form>
+    <div id="add_category_messageContainer"></div>
+
+    <h2 class="mt-4">Сделать пользователя администратором</h2>
+    <div class="scrollable-container border">
+        <table class="table table-bordered mb-0">
+            <thead>
+                <tr>
+                    <th>Имя пользователя</th>
+                    <th>Назначить администратором</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr id="row-{{ user }}">
+                    <td>{{ user }}</td>
+                    <td>
+                        <form class="add_admin_Form">
+                            <input type="hidden" name="username" value="{{ user }}">
+                            <button type="submit" class="btn btn-warning">Назначить администратором</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="add_admin_messageContainer"></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#add_appliance_Form').on('submit', function(event) {
+        event.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/home/add_appliance',
+            data: $(this).serialize(),
+            success: function(response) {
+                $('#add_appliance_messageContainer').html('<div class="alert alert-success mt-3" role="alert">' + response.message + '</div>');
+                $('#add_appliance_Form')[0].reset();
+            },
+            error: function() {
+                $('#add_appliance_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">Error occurred while adding item.</div>');
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    $(document).on('submit', '.rmv_appliance_Form', function(event) {
+        event.preventDefault();
+        const form = $(this);
+        const applianceId = form.find('input[id="appliance_id"]').val();
+        const shopId = form.find('input[id="shop_id"]').val();
+        $.ajax({
+            type: 'POST',
+            url: '/home/rmv_appliance',
+            data: form.serialize(),
+            success: function(response) {
+                $('#row-' + applianceId + 'a' + shopId).remove();
+                $('#rmv_appliance_messageContainer').html('<div class="alert alert-success mt-3" role="alert">' + response.message + '</div>');
+            },
+            error: function() {
+                $('#rmv_appliance_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">Error.</div>');
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    $('#add_brand_Form').on('submit', function(event) {
+        event.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/home/add_brand',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.status == "OK") {
+                    $('#add_brand_messageContainer').html('<div class="alert alert-success mt-3" role="alert">' + response.message + '</div>');
+                    $('#add_brand_Form')[0].reset();
+                } else {
+                    $('#add_brand_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">' + response.message + '</div>');
+                }
+            },
+            error: function() {
+                $('#add_brand_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">Error occurred while adding item.</div>');
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    $('#add_category_Form').on('submit', function(event) {
+        event.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/home/add_category',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.status == "OK") {
+                    $('#add_category_messageContainer').html('<div class="alert alert-success mt-3" role="alert">' + response.message + '</div>');
+                    $('#add_category_Form')[0].reset();
+                } else {
+                    $('#add_category_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">' + response.message + '</div>');
+                }
+            },
+            error: function() {
+                $('#add_category_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">Error occurred while adding item.</div>');
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    $(document).on('submit', '.add_admin_Form', function(event) {
+        event.preventDefault();
+        const form = $(this);
+        const username = form.find('input[id="username"]').val();
+        $.ajax({
+            type: 'POST',
+            url: '/home/add_admin',
+            data: form.serialize(),
+            success: function(response) {
+                $('#row-' + username).remove();
+                $('#add_admin_messageContainer').html('<div class="alert alert-success mt-3" role="alert">' + response.message + '</div>');
+            },
+            error: function() {
+                $('#add_admin_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">Error.</div>');
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    $('#add_shop_Form').on('submit', function(event) {
+        event.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/home/add_shop',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.status == "OK") {
+                    $('#add_shop_messageContainer').html('<div class="alert alert-success mt-3" role="alert">' + response.message + '</div>');
+                    $('#add_shop_Form')[0].reset();
+                } else {
+                    $('#add_shop_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">' + response.message + '</div>');
+                }
+            },
+            error: function() {
+                $('#add_shop_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">Error occurred while adding item.</div>');
+            }
+        });
+    });
+});
+
+$(document).ready(function() {
+    $(document).on('submit', '.rmv_shop_Form', function(event) {
+        event.preventDefault();
+        const form = $(this);
+        const shop_id = form.find('input[id="shop_id"]').val();
+        console.log(shop_id);
+        $.ajax({
+            type: 'POST',
+            url: '/home/rmv_shop',
+            data: form.serialize(),
+            success: function(response) {
+                $('#row-' + shop_id).remove();
+                $('#rmv_shop_messageContainer').html('<div class="alert alert-success mt-3" role="alert">' + response.message + '</div>');
+            },
+            error: function() {
+                $('#rmv_shop_messageContainer').html('<div class="alert alert-danger mt-3" role="alert">Error.</div>');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+</body>
+</html>
